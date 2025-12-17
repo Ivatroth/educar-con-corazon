@@ -48,8 +48,19 @@
 </head>
 <body class="antialiased">
 
-    <!-- HERO SECTION -->
-    <header class="relative bg-brand-light overflow-hidden pt-10 pb-16 lg:pt-20 lg:pb-24">
+    <!-- CRONÓMETRO DE CUENTA REGRESIVA FIJO (24 Horas) -->
+    <!-- Este banner se mantiene visible en la parte superior de la página -->
+    <div id="countdown-banner" class="fixed top-0 left-0 w-full bg-red-600 text-white z-50 py-2 shadow-xl hidden">
+        <div class="container mx-auto px-4 flex justify-center items-center text-sm sm:text-base font-bold">
+            <p class="mr-4 tracking-wider uppercase">¡ÚLTIMO DÍA! LA OFERTA EXPIRA EN:</p>
+            <div id="timer" class="bg-red-800 px-3 py-1 rounded-md text-lg tracking-widest font-mono shadow-inner">
+                00:00:00
+            </div>
+        </div>
+    </div>
+
+    <!-- HERO SECTION (Se añade margen superior para el banner fijo) -->
+    <header id="main-header" class="relative bg-brand-light overflow-hidden pt-10 pb-16 lg:pt-20 lg:pb-24">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="flex flex-col lg:flex-row items-center gap-12">
                 <!-- Texto Hero -->
@@ -457,5 +468,67 @@
         </div>
     </footer>
 
+    <script>
+        // JavaScript para el cronómetro de cuenta regresiva
+        const countdownBanner = document.getElementById('countdown-banner');
+        const timerElement = document.getElementById('timer');
+        const headerElement = document.getElementById('main-header'); // Usamos el ID del header
+
+        const localStorageKey = 'hotmartCountdownEndTime';
+        const totalDurationMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+        const bannerHeight = 40; // Altura aproximada del banner en px
+
+        let endTime = localStorage.getItem(localStorageKey);
+        let now = new Date().getTime();
+
+        // 1. Verificar si hay un tiempo final almacenado y si no ha expirado
+        if (!endTime || parseInt(endTime) < now) {
+            // Si no existe o ya expiró, establece un nuevo tiempo final (24 horas desde ahora)
+            endTime = now + totalDurationMs;
+            localStorage.setItem(localStorageKey, endTime);
+        } else {
+            // Asegurarse de que endTime es un número
+            endTime = parseInt(endTime);
+        }
+        
+        // Mostrar el banner y ajustar el margen del header
+        countdownBanner.classList.remove('hidden');
+        if (headerElement) {
+            // Ajustar el margen superior del header para evitar que el banner lo tape
+            headerElement.style.marginTop = `${bannerHeight}px`; 
+        }
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            // Cálculo de tiempo
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Formateo para dos dígitos
+            const displayHours = String(hours).padStart(2, '0');
+            const displayMinutes = String(minutes).padStart(2, '0');
+            const displaySeconds = String(seconds).padStart(2, '0');
+
+            // Mostrar el resultado
+            timerElement.innerHTML = `${displayHours}:${displayMinutes}:${displaySeconds}`;
+
+            // Cuando la cuenta regresiva termina
+            if (distance < 0) {
+                clearInterval(countdownInterval);
+                timerElement.innerHTML = "00:00:00";
+                
+                // Mostrar mensaje de expiración y eliminar la clave para que se reinicie en la próxima visita
+                countdownBanner.innerHTML = '<div class="container mx-auto px-4 text-center font-bold">¡LA OFERTA HA EXPIRADO!</div>';
+                localStorage.removeItem(localStorageKey);
+            }
+        }
+
+        // Inicializar y establecer el intervalo
+        updateCountdown(); // Llamada inicial para evitar un segundo de "00:00:00"
+        const countdownInterval = setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html>
