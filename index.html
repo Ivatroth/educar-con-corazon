@@ -48,7 +48,7 @@
 </head>
 <body class="antialiased">
 
-    <!-- CRONÓMETRO DE CUENTA REGRESIVA FIJO (24 Horas) -->
+    <!-- CRONÓMETRO DE CUENTA REGRESIVA FIJO (22 Horas 48 Minutos) -->
     <!-- Este banner se mantiene visible en la parte superior de la página -->
     <div id="countdown-banner" class="fixed top-0 left-0 w-full bg-red-600 text-white z-50 py-2 shadow-xl hidden">
         <div class="container mx-auto px-4 flex justify-center items-center text-sm sm:text-base font-bold">
@@ -475,7 +475,12 @@
         const headerElement = document.getElementById('main-header'); // Usamos el ID del header
 
         const localStorageKey = 'hotmartCountdownEndTime';
-        const totalDurationMs = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+        
+        // --- NUEVO TIEMPO DE INICIO: 22 horas y 48 minutos ---
+        const initialHours = 22;
+        const initialMinutes = 48;
+        const totalDurationMs = (initialHours * 60 * 60 * 1000) + (initialMinutes * 60 * 1000); // 22h 48m en milisegundos
+
         const bannerHeight = 40; // Altura aproximada del banner en px
 
         let endTime = localStorage.getItem(localStorageKey);
@@ -483,7 +488,7 @@
 
         // 1. Verificar si hay un tiempo final almacenado y si no ha expirado
         if (!endTime || parseInt(endTime) < now) {
-            // Si no existe o ya expiró, establece un nuevo tiempo final (24 horas desde ahora)
+            // Si no existe o ya expiró, establece un nuevo tiempo final (22h 48m desde ahora)
             endTime = now + totalDurationMs;
             localStorage.setItem(localStorageKey, endTime);
         } else {
